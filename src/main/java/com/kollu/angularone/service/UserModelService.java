@@ -11,7 +11,7 @@ import com.kollu.angularone.repository.UserModelRepository;
 
 @Service
 public class UserModelService {
-	
+
 	@Autowired
 	private UserModelRepository userModelRepository;
 

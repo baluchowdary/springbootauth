@@ -20,7 +20,7 @@ import com.kollu.angularone.service.UserModelService;
 public class UserModelController {
 	@Autowired
 	private UserModelService userModelService;
-	
+
 	@GetMapping("/test")
 	public String getUser() {
 		return "Testing User controller";

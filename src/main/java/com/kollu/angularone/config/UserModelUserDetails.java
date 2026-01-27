@@ -17,7 +17,7 @@ public class UserModelUserDetails implements UserDetails {
 	private String password;
 	private List<GrantedAuthority> authorities;
 
-	//by using constructor we are initializing values here 
+	// by using constructor we are initializing values here
 	public UserModelUserDetails(UserModel userModel) {
 		name = userModel.getName();
 		password = userModel.getPassword();
