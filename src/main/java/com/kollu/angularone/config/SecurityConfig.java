@@ -1,10 +1,12 @@
 package com.kollu.angularone.config;
 
-import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,10 +15,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configurable
+@Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 	
+		@Autowired
+		private AppConfig appConfig;
 	
 		//authentication 
 	 	@Bean
@@ -34,23 +39,25 @@ public class SecurityConfig {
 //	                .authenticated().and().formLogin().and().build();
 //	    }
 	 	
-	 	@Bean
-	 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 	    return http.csrf(AbstractHttpConfigurer::disable)
-	 	            .authorizeHttpRequests(auth ->
-					/* Below line, we are skipping authentication */ 
-	 	                    auth.requestMatchers("/products/test", "/products/saveproduct").permitAll()
-	 	                   /* Below line, we are doing authentication */
-	 	                            .requestMatchers("/products/getproduct").authenticated()
-	 	            )
-	 	            .httpBasic(Customizer.withDefaults()).build();
-	 	}
+		@Bean
+		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth ->
+			/* Below line, we are skipping authentication */
+			auth.requestMatchers("/h2-console/**", "/products/test", "/products/saveproduct", 
+					"/users/test", "/users/saveusermodel").permitAll()
+					/* Below line, we are doing ROLE based authentication */
+					//.requestMatchers("/products/**", "/users/**").hasRole("ADMIN")
+					.requestMatchers("/products/**", "/users/**").hasAnyRole("ADMIN", "LEAD")
+					.anyRequest().authenticated())
+					.headers(headers -> headers.frameOptions(frame -> frame.disable()))
+					.httpBasic(Customizer.withDefaults()).build();
+		}
 	 	
 	 	//Here, We are encrypting password 
-	 	@Bean
-	    public PasswordEncoder passwordEncoder() {
-	        return new BCryptPasswordEncoder();
-	    }
+//	 	@Bean
+//	    public PasswordEncoder passwordEncoder() {
+//	        return new BCryptPasswordEncoder();
+//	    }
 
 	 	//Here, AuthenticationProvider communicating with UserDetails to validate username, 
 	 	//If we are not implementing this bean we will get Error in UI
@@ -58,7 +65,7 @@ public class SecurityConfig {
 	    public AuthenticationProvider authenticationProvider(){
 	        DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
 	        authenticationProvider.setUserDetailsService(userDetailsService());
-	        authenticationProvider.setPasswordEncoder(passwordEncoder());
+	        authenticationProvider.setPasswordEncoder(appConfig.passwordEncoder());
 	        return authenticationProvider;
 	    }
 
