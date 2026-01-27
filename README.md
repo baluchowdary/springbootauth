@@ -29,5 +29,25 @@ o/p:
     "productName": "test"
 }
 
+==============
+==> post - http://localhost:9090/users/saveusermodel
+i/p:
+{
+    "name": "bhardwaja",
+    "password" : "bhardwaja",
+    "roles" : "ROLE_LEAD"
+}
+
+OR
+
+{
+    "name": "kollu",
+    "password" : "kollu",
+    "roles" : "ROLE_ADMIN"
+}
+
+==> get - http://localhost:9090/users/getusermodel
+ADMIN role use can able to fetch the details by passing user and password
+LEAD roles can't able to fetch the details due to ROLE level access
 
 
