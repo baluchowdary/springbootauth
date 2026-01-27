@@ -19,11 +19,12 @@ public class UserModelUserDetails implements UserDetails {
 
 	// by using constructor we are initializing values here
 	public UserModelUserDetails(UserModel userModel) {
-		name = userModel.getName();
-		password = userModel.getPassword();
+		this.name = userModel.getName();
+		this.password = userModel.getPassword();
 		// User can have multiple roles while authorization in springConfig file, User
 		// can be Developer and Lead role
-		authorities = Arrays.stream(userModel.getRoles().split(",")).map(SimpleGrantedAuthority::new)
+		this.authorities = Arrays.stream(userModel.getRoles().split(","))
+				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toList());
 
 	}
