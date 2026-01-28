@@ -106,11 +106,15 @@ public class JwtService {
 //    }
 	
 	private String createToken(Map<String, Object> claims, String userName) {
+		// 1000ms * 60s * 60m * 24h * 90 days (approx 3 months)
+	    long threeMonthsInMillis = 1000L * 60 * 60 * 24 * 90;
+	    
 	    return Jwts.builder()
 	            .claims(claims)                   // Replaces setClaims()
 	            .subject(userName)                // Replaces setSubject()
 	            .issuedAt(new Date())             // Replaces setIssuedAt()
-	            .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30 mins
+	           // .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30 mins
+	            .expiration(new Date(System.currentTimeMillis() + threeMonthsInMillis))
 	            .signWith(getSignKey(),Jwts.SIG.HS384)           // Replaces signWith(key, algorithm)
 	            .compact();
 	}
