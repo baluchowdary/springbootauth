@@ -1,11 +1,12 @@
 package com.kollu.angularone.service;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
@@ -43,8 +43,18 @@ public class JwtService {
 		return claimsResolver.apply(claims);
 	}
 
+	/*
+	 * private Claims extractAllClaims(String token) { return
+	 * Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token
+	 * ).getBody(); }
+	 */
+	
 	private Claims extractAllClaims(String token) {
-		return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
+	    return Jwts.parser()
+	            .verifyWith(getSignKey()) // Replaces setSigningKey()
+	            .build()
+	            .parseSignedClaims(token) // Replaces parseClaimsJws()
+	            .getPayload();            // Replaces getBody()
 	}
 
 	private Boolean isTokenExpired(String token) {
@@ -85,15 +95,27 @@ public class JwtService {
 	 * }
 	 */
 	
+//	private String createToken(Map<String, Object> claims, String userName) {
+//        return Jwts.builder()
+//                .setClaims(claims)
+//                .setSubject(userName)
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+//                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+//                .compact();
+//    }
+	
 	private String createToken(Map<String, Object> claims, String userName) {
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userName)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+	    return Jwts.builder()
+	            .claims(claims)                   // Replaces setClaims()
+	            .subject(userName)                // Replaces setSubject()
+	            .issuedAt(new Date())             // Replaces setIssuedAt()
+	            .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30 mins
+	            .signWith(getSignKey(),Jwts.SIG.HS384)           // Replaces signWith(key, algorithm)
+	            .compact();
+	}
+	
+	
 
 	// 3
 //Decoding encrypted secret_key
@@ -102,7 +124,7 @@ public class JwtService {
 	 * Decoders.BASE64.decode(secret); System.out.println(keyBytes); return
 	 * Keys.hmacShaKeyFor(keyBytes); }
 	 */
-	private Key getSignKey() {
+	private SecretKey getSignKey() { 
         // If this prints null or ${jwt.secret}, check your application.properties!
         if (secret == null || secret.contains("{")) {
             throw new RuntimeException("JWT Secret not properly injected!");

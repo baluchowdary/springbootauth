@@ -19,7 +19,7 @@ public class UserModelUserDetailsService implements UserDetailsService {
 
 		/* Optional<UserModel> userModel = userModelRepository.findByName(username);
 		return userModel */
-		return userModelRepository.findByName(username)
+		return userModelRepository.findByUsername(username)
 				.map(UserModelUserDetails::new)
 				.orElseThrow(() -> new UsernameNotFoundException("user not found " + username));
 		
