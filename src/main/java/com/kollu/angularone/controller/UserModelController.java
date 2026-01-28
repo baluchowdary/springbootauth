@@ -3,6 +3,8 @@ package com.kollu.angularone.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kollu.angularone.model.AuthRequest;
+import com.kollu.angularone.model.AuthResponse;
 import com.kollu.angularone.model.UserModel;
 import com.kollu.angularone.service.JwtService;
 import com.kollu.angularone.service.UserModelService;
@@ -72,22 +75,35 @@ public class UserModelController {
 	 */
 	
 	@PostMapping("/authenticate")
-	public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-	    // 1. Authenticate the user
-	    Authentication authentication = authenticationManager.authenticate(
-	        new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-	    );
+//	public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+	public ResponseEntity<AuthResponse> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
 
-	    // 2. Check if authentication was successful
-	    if (authentication.isAuthenticated()) {
-	        /* * FIX: Cast the principal to UserDetails. 
-	         * This allows JwtService to access the roles/authorities 
-	         * and include them in the token.
-	         */
-	        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-	        return jwtService.generateToken(userDetails); 
-	    } else {
-	        throw new UsernameNotFoundException("Invalid user request!");
-	    }
+		String tokenResponce;
+
+		try {
+			// 1. Authenticate the user
+			Authentication authentication = authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+			
+			// 2. Check if authentication was successful
+			if (authentication.isAuthenticated()) {
+				/*
+				 * FIX: Cast the principal to UserDetails. This allows JwtService to access the
+				 * roles/authorities and include them in the token.
+				 */
+				 
+				UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+				tokenResponce = jwtService.generateToken(userDetails);
+			} else {
+				throw new UsernameNotFoundException("Invalid user request!");
+			}
+
+			return ResponseEntity.ok(new AuthResponse(tokenResponce, true, "Login Successful"));
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body(new AuthResponse(null, false, "Invalid Credentials"));
+		}
+
 	}
 }
