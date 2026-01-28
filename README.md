@@ -83,7 +83,11 @@ i/p:
 
 o/p:
 
-eyJhbGciOiJIUzM4NCJ9.eyJyb2xlcyI6WyJST0xFX0FETUlOIl0sInN1YiI6ImtvbGx1IiwiaWF0IjoxNzY5NTY2NDI0LCJleHAiOjE3Njk1NjgyMjR9.P0QPl_ErFTYm5mhyRrPT-enZrRHePF8lDWEMCcVCCDNEEhTwoFRk8IcNSTotnOyE
+{
+    "data": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlcyI6WyJST0xFX0FETUlOIl0sInN1YiI6ImtvbGx1IiwiaWF0IjoxNzY5NTcxNTExLCJleHAiOjE3NzczNDc1MTF9.hAPhuxDC2OdoHxoqv7Xio9FHfN4cQ112eUhcnzKdt11YBLnYTyYwWyEoeaxPYiGD",
+    "status": true,
+    "message": "Login Successful"
+}
 
 ==>Authorize 
 
