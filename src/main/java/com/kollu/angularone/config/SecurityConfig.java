@@ -40,12 +40,14 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http
 				// 1. Disable CSRF (especially for H2 console and APIs)
+				.cors(Customizer.withDefaults())
 				.csrf(csrf -> csrf.disable())
+//				.cors(Customizer.withDefaults())
 				// 2. Configure Authorization
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/h2-console/**", "/products/test", "/products/saveproduct", "/users/test",
 								"/users/saveusermodel", "/users/authenticate").permitAll()
-						.requestMatchers("/products/**", "/users/**").hasAnyRole("ADMIN", "LEAD")
+						.requestMatchers("/products/**", "/users/**", "/users//authenticate").hasAnyRole("ADMIN", "LEAD")
 						.anyRequest().authenticated())
 				// 3. Configure Session Management (Stateless for JWT)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
